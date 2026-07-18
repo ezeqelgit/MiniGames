@@ -2,6 +2,10 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
+    path: "/",
+    redirect: "/Hacking",
+  },
+  {
     path: "/Signaling",
     name: "Signaling",
     component: () => import("../components/GameSignaling/Signaling.vue"),

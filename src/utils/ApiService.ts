@@ -1,6 +1,6 @@
 
 
-const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.VUE_APP_API_URL || 'https://minigames-backend-4ppv.onrender.com/api';
 
 interface ScorePayload {
   game: string;
