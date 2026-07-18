@@ -1,4 +1,6 @@
 import { App, Plugin } from "vue";
+import "../components/GameHacking/events";
+import "../components/GameSignaling/events";
 
 const events: Plugin = {
   install(app: App) {
@@ -23,8 +25,6 @@ const events: Plugin = {
     }
 
     window.bsurl = process.env.NODE_ENV === "production" ? "/Main" : "";
-    
-    require("../components/GameSignaling/events");
   }
 };
 

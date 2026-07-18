@@ -1,38 +1,22 @@
 import { Module } from "vuex"
 import { Hacking, MatrixData, Reward, SpecsData } from "./types/Hacking"
 import { MatrixComplexity } from "./types/MatrixComplexity";
+import { getGames } from "../../utils/ApiService";
+
+const defaultState = {
+  matrixData: {
+    matrixSize: 0,
+    matrixComplexity: MatrixComplexity.levelThree,
+  },
+  specsData: {
+    time: 0,
+    bufferSize: 0
+  },
+  listRewards: [] as Reward[],
+};
 
 const Hacking: Module<Hacking, unknown> = ({
-  state: {
-    matrixData:{
-      matrixSize: 5,
-      matrixComplexity: MatrixComplexity.levelThree,
-    },
-    specsData: {
-      time: 10,
-      bufferSize: 4
-    },
-    listRewards: [
-      {
-        id: 6,
-        nameReward: "добыча_данных_1",
-        descriptionReward: "КАКОЕ-ТО ОПИСАНИЕ БУДЕТ ЗДЕСЬ, ПОЛЕЗНОЕ ДЛЯ ИГРОКА",
-        complexityReward: 2
-      },
-      {
-        id: 3,
-        nameReward: "добыча_данных_2",
-        descriptionReward: "КАКОЕ-ТО ОПИСАНИЕ БУДЕТ ЗДЕСЬ, ПОЛЕЗНОЕ ДЛЯ ИГРОКА",
-        complexityReward: 3
-      },
-      {
-        id: 24,
-        nameReward: "добыча_данных_3",
-        descriptionReward: "КАКОЕ-ТО ОПИСАНИЕ БУДЕТ ЗДЕСЬ, ПОЛЕЗНОЕ ДЛЯ ИГРОКА",
-        complexityReward: 4
-      },
-    ],
-  },
+  state: defaultState,
   getters: {
     getMatrixData: (state) => state.matrixData,
     getSpecsData: (state) => state.specsData,
@@ -47,6 +31,26 @@ const Hacking: Module<Hacking, unknown> = ({
     },
     setListRewards(state, payload: Reward[]) {
       state.listRewards = payload
+    },
+    loadHackingDataFromApi(state) {
+      getGames().then((response) => {
+        if (response.success && response.data) {
+          const games = Array.isArray(response.data.games) ? response.data.games : [];
+          const hackingGame = games.find((game: any) => game.name === "Hacking");
+
+          if (hackingGame?.config) {
+            state.matrixData = {
+              matrixSize: hackingGame.config.matrixSize,
+              matrixComplexity: hackingGame.config.matrixComplexity,
+            };
+            state.specsData = {
+              time: hackingGame.config.time,
+              bufferSize: hackingGame.config.bufferSize,
+            };
+            state.listRewards = hackingGame.config.rewards || [];
+          }
+        }
+      });
     },
   },
 });

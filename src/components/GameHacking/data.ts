@@ -49,6 +49,15 @@ export default defineComponent({
 
     const unClickable = ref(false)
 
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    function stopTimer() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
     // finish
     const checkAllPathsCompleted = () => {
       if (pathsStatus.value.every((status: any) => status.isCompleted !== null)) {
@@ -112,8 +121,6 @@ export default defineComponent({
       return (remainingTime.value / totalTime.value) * 100;
     });
 
-    let timer: ReturnType<typeof setInterval> | null = null;
-
     const startTimer = () => {
       timer = setInterval(() => {
         if (remainingTime.value > 0) {
@@ -125,13 +132,6 @@ export default defineComponent({
             }
           }
         }, 10);
-      };
-
-      const stopTimer = () => {
-        if (timer) {
-          clearInterval(timer);
-          timer = null;
-        }
       };
 
     //matrix generation
