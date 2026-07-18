@@ -3,6 +3,7 @@ import { ImportImages } from "../../utils/ImportImages"
 import { useStore } from "vuex";
 import { Hacking, Reward } from "./types/Hacking";
 import { Complexity, MatrixComplexity } from "./types/MatrixComplexity";
+import { sendScore } from "../../utils/ApiService";
 
 const svg = ImportImages(require.context('./assets/svg/', false, /\.(png|jpe?g|svg)$/));
 
@@ -73,6 +74,21 @@ export default defineComponent({
 
     const completeGame = () => {
       stopTimer();
+      
+      const successfulPaths = pathsStatus.value.filter((status: any) => status.isCompleted === true).length;
+      const totalScore = successfulPaths * 100 + Math.max(0, Math.floor(remainingTime.value / 1000) * 10);
+      
+      sendScore({
+        game: 'Hacking',
+        score: totalScore,
+        details: {
+          successfulPaths,
+          totalTime: time.value,
+          remainingTime: Math.floor(remainingTime.value / 1000),
+          pathsStatus: pathsStatus.value
+        }
+      });
+      
       window.mp.trigger("CEF:SERVER:GameHacking:Finish", JSON.stringify(pathsStatus.value));
     };
 

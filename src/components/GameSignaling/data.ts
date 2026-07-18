@@ -4,6 +4,7 @@ import { Timer, Signaling } from "./types/Signaling"
 import { Goal, GoalColor } from "./types/Goals"
 import { WiresList, WiresColor  } from './types/Wires'
 import { useStore } from "vuex"
+import { sendScore } from "../../utils/ApiService";
 
 const svg = ImportImages(require.context('./assets/svg/', false, /\.(png|jpe?g|svg)$/));
 const wires = ImportImages(require.context('./assets/wires/', false, /\.(png|jpe?g|svg)$/));
@@ -113,6 +114,21 @@ export default defineComponent({
       finish.status = finish.roundStatus;
       isCursor.value = false;
       isCursorWirecutters.value = false;
+      
+      const isWin = isComplete.value ? 500 : 0;
+      const timeBonusScore = Math.max(0, (60 - Math.floor((Date.now() - (window as any).gameStartTime || 0) / 1000)) * 5);
+      const totalScore = isWin + timeBonusScore;
+      
+      sendScore({
+        game: 'Signaling',
+        score: totalScore,
+        details: {
+          isWin: isComplete.value,
+          correctWiresCut: ruinedWires.value.size,
+          totalCorrectWires: correctWires.length
+        }
+      });
+      
       window.mp.trigger("CEF:SERVER:GameSignaling:Finish");
     };
 
