@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref } from "vue"
+import { defineComponent, computed, ref, watch } from "vue"
 import { ImportImages } from "../../utils/ImportImages"
 import { useStore } from "vuex";
 import { Hacking, Reward } from "./types/Hacking";
@@ -28,7 +28,7 @@ export default defineComponent({
 
     const bufferSize = computed(() => specsData.value.bufferSize);
 
-    const buffer = ref<BufferItem[]>(new Array(specsData.value.bufferSize).fill(null).map(() => ({ value: null, isSelected: false })));
+    const buffer = ref<BufferItem[]>([]);
 
     const listRewards = computed(() =>
       store.getters.getListRewards.map((reward: Reward[]) => ({ ...reward, isWin: ref(null) }))
@@ -46,6 +46,10 @@ export default defineComponent({
         isCompleted: null as boolean | null,
       }))
     );
+
+    watch(bufferSize, (newSize) => {
+      buffer.value = new Array(newSize).fill(null).map(() => ({ value: null, isSelected: false }));
+    }, { immediate: true });
 
     const unClickable = ref(false)
 
@@ -327,6 +331,21 @@ export default defineComponent({
     };
     
     const paths = ref(generatePaths());    
+
+    watch([listRewards, matrixSize], () => {
+      paths.value = generatePaths();
+      pathsStatus.value = listRewards.value.map((reward: any) => ({
+        id: reward.id,
+        isCompleted: null as boolean | null,
+      }));
+      buffer.value = new Array(bufferSize.value).fill(null).map(() => ({ value: null, isSelected: false }));
+      unClickable.value = false;
+      clicksCount.value = 0;
+      activeRow.value = null;
+      activeCol.value = null;
+      hoverRow.value = null;
+      hoverCol.value = null;
+    }, { immediate: true });
 
     //gameplay
     const lastClickedIndex = ref<number | null>(null);
